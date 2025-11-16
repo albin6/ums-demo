@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Button, Space, Modal, message, Tag, Spin, Pagination } from 'antd';
-import { SearchOutlined, BlockOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { SearchOutlined, BlockOutlined, CheckCircleOutlined, LogoutOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import { adminApi } from '../../services/api';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -22,6 +23,7 @@ const AdminDashboard: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
   const [userToAction, setUserToAction] = useState<{ id: string; action: 'block' | 'unblock' } | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUsers(currentPage, pageSize, searchText);
@@ -82,9 +84,23 @@ const AdminDashboard: React.FC = () => {
       key: 'profileImage',
       render: (image, record) => (
         <div className="flex items-center">
-          <div className="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10 flex items-center justify-center">
-            {record.name.charAt(0).toUpperCase()}
-          </div>
+          {record.profileImage ? (
+            <img
+              src={record.profileImage}
+              alt={record.name}
+              className="w-10 h-10 rounded-full object-cover border-2 border-gray-300"
+              onError={(e) => {
+                // Fallback to initial if image fails to load
+                const target = e.target as HTMLImageElement;
+                target.onerror = null; // Prevent infinite loop
+                target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="14" fill="gray">${record.name.charAt(0).toUpperCase()}</text></svg>`;
+              }}
+            />
+          ) : (
+            <div className="bg-gray-200 border-2 border-dashed rounded-full w-10 h-10 flex items-center justify-center">
+              {record.name.charAt(0).toUpperCase()}
+            </div>
+          )}
         </div>
       ),
     },
@@ -167,6 +183,18 @@ const AdminDashboard: React.FC = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard - User Management</h1>
+        <Button
+          type="primary"
+          danger
+          icon={<LogoutOutlined />}
+          onClick={async () => {
+            await adminApi.logout();
+            message.success('Logged out successfully');
+            navigate('/');
+          }}
+        >
+          Logout
+        </Button>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow mb-6">

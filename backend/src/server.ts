@@ -49,7 +49,21 @@ const PORT = process.env.PORT || 5002;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+
+// Configure CORS to allow all origins during development
+const corsOptions = {
+  origin: '*', // Allow all origins during development
+  credentials: true, // Enable credentials (cookies, authorization headers)
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
+// Additional headers for cross-origin resource sharing
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+});
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 

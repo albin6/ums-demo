@@ -61,6 +61,11 @@ export const userApi = {
     return apiClient.post("/users/login", credentials);
   },
 
+  logout: (): Promise<void> => {
+    localStorage.removeItem("token");
+    return Promise.resolve();
+  },
+
   // User profile
   getProfile: (): Promise<AxiosResponse<IUser>> => {
     return apiClient.get("/users/profile");
@@ -69,12 +74,12 @@ export const userApi = {
   updateProfile: (userData: Partial<IUser>): Promise<AxiosResponse<IUser>> => {
     return apiClient.put("/users/profile", userData);
   },
-
+  
   // Profile image upload
   uploadProfileImage: (file: File): Promise<AxiosResponse<any>> => {
     const formData = new FormData();
     formData.append('profileImage', file);
-
+    
     return apiClient.post("/users/upload", formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -90,6 +95,11 @@ export const adminApi = {
     password: string;
   }): Promise<AxiosResponse<ILoginResponse>> => {
     return apiClient.post("/admin/login", credentials);
+  },
+
+  logout: (): Promise<void> => {
+    localStorage.removeItem("adminToken");
+    return Promise.resolve();
   },
 
   // User management

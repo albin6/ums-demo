@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Card, Typography, Avatar, Upload, message, Spin } from 'antd';
-import { UserOutlined, UploadOutlined } from '@ant-design/icons';
+import { UserOutlined, UploadOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { userApi } from '../../services/api';
 
@@ -138,18 +138,32 @@ const UserEditProfile: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex gap-4 flex-1">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={submitting}
+                  className="flex-1"
+                >
+                  Update Profile
+                </Button>
+                <Link to="/user/profile">
+                  <Button className="flex-1">Cancel</Button>
+                </Link>
+              </div>
               <Button
-                type="primary"
-                htmlType="submit"
-                loading={submitting}
-                className="flex-1"
+                type="default"
+                danger
+                icon={<LogoutOutlined />}
+                onClick={async () => {
+                  await userApi.logout();
+                  message.success('Logged out successfully');
+                  navigate('/');
+                }}
               >
-                Update Profile
+                Logout
               </Button>
-              <Link to="/user/profile">
-                <Button className="flex-1">Cancel</Button>
-              </Link>
             </div>
           </Form.Item>
         </Form>

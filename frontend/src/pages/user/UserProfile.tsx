@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, Typography, Avatar, Button, Space, Spin, message } from "antd";
-import { EditOutlined, UserOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { EditOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
 import { userApi } from "../../services/api";
 
 const { Title, Text } = Typography;
@@ -17,6 +17,7 @@ interface UserProfile {
 const UserProfile: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserProfile();
@@ -55,12 +56,25 @@ const UserProfile: React.FC = () => {
       <Card className="shadow-lg">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
           <div className="flex-shrink-0">
-            <Avatar
-              size={128}
-              icon={<UserOutlined />}
-              src={`${process.env.REACT_APP_API_BASE_URL}${user.profileImage}`}
-              className="border-4 border-blue-200"
-            />
+            {user.profileImage ? (
+              <img
+                src={user.profileImage}
+                alt={user.name}
+                className="w-32 h-32 rounded-full object-cover border-4 border-blue-200"
+                onError={(e) => {
+                  // Fallback to initial if image fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.onerror = null; // Prevent infinite loop
+                  target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="32" fill="gray">${user.name.charAt(0).toUpperCase()}</text></svg>`;
+                }}
+              />
+            ) : (
+              <Avatar
+                size={128}
+                icon={<UserOutlined />}
+                className="border-4 border-blue-200"
+              />
+            )}
           </div>
 
           <div className="flex-grow text-center md:text-left">
@@ -89,6 +103,18 @@ const UserProfile: React.FC = () => {
                     Edit Profile
                   </Button>
                 </Link>
+                <Button
+                  type="default"
+                  danger
+                  icon={<LogoutOutlined />}
+                  onClick={async () => {
+                    await userApi.logout();
+                    message.success('Logged out successfully');
+                    navigate('/');
+                  }}
+                >
+                  Logout
+                </Button>
               </Space>
             </div>
           </div>
