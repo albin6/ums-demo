@@ -1,41 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Card, Typography, Avatar, Button, Space, Spin, message } from "antd";
 import { EditOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
-import { userApi } from "../../services/api";
+import { useAuth } from "../../hooks/useAuth";
 
 const { Title, Text } = Typography;
 
-interface UserProfile {
-  _id: string;
-  name: string;
-  email: string;
-  profileImage?: string;
-  createdAt: string;
-}
-
 const UserProfile: React.FC = () => {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, fetchProfile, loading, logoutUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUserProfile();
+    fetchProfile();
   }, []);
 
-  const fetchUserProfile = async () => {
-    try {
-      const response = await userApi.getProfile();
-      setUser(response.data);
-    } catch (error: any) {
-      console.error("Error fetching profile:", error);
-      message.error(error.response?.data?.message || "Failed to fetch profile");
-    } finally {
-      setLoading(false);
-    }
+  const handleLogout = async () => {
+    logoutUser();
+    message.success("Logged out successfully");
+    navigate("/");
   };
 
-  if (loading) {
+  if (loading && !user) {
     return (
       <div className="flex justify-center items-center min-h-[80vh]">
         <Spin size="large" />
@@ -65,7 +50,9 @@ const UserProfile: React.FC = () => {
                   // Fallback to initial if image fails to load
                   const target = e.target as HTMLImageElement;
                   target.onerror = null; // Prevent infinite loop
-                  target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="32" fill="gray">${user.name.charAt(0).toUpperCase()}</text></svg>`;
+                  target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="32" fill="gray">${user.name
+                    .charAt(0)
+                    .toUpperCase()}</text></svg>`;
                 }}
               />
             ) : (
@@ -107,11 +94,7 @@ const UserProfile: React.FC = () => {
                   type="default"
                   danger
                   icon={<LogoutOutlined />}
-                  onClick={async () => {
-                    await userApi.logout();
-                    message.success('Logged out successfully');
-                    navigate('/');
-                  }}
+                  onClick={handleLogout}
                 >
                   Logout
                 </Button>

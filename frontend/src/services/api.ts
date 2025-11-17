@@ -4,12 +4,10 @@ import { IUser, ILoginResponse, IPaginatedResponse } from "../types/User";
 const API_BASE_URL =
   process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
-// Create axios instance
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -28,24 +26,34 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle auth errors
 apiClient.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
-      // Clear tokens if unauthorized
       localStorage.removeItem("token");
       localStorage.removeItem("adminToken");
-      window.location.href = "/"; // Redirect to home
+
+      const storeAccessModule = await import('./storeAccess');
+      const { dispatchLogout } = storeAccessModule;
+
+      const token = localStorage.getItem("token");
+      const adminToken = localStorage.getItem("adminToken");
+
+      if (token) {
+        dispatchLogout('user');
+      } else if (adminToken) {
+        dispatchLogout('admin');
+      }
+
+      window.location.href = "/";
     }
     return Promise.reject(error);
   }
 );
 
 export const userApi = {
-  // User authentication
   signup: (userData: {
     name: string;
     email: string;
@@ -61,12 +69,16 @@ export const userApi = {
     return apiClient.post("/users/login", credentials);
   },
 
-  logout: (): Promise<void> => {
+  logout: async (): Promise<void> => {
     localStorage.removeItem("token");
+
+    const storeAccessModule = await import('./storeAccess');
+    const { dispatchLogout } = storeAccessModule;
+    dispatchLogout('user');
+
     return Promise.resolve();
   },
 
-  // User profile
   getProfile: (): Promise<AxiosResponse<IUser>> => {
     return apiClient.get("/users/profile");
   },
@@ -74,22 +86,20 @@ export const userApi = {
   updateProfile: (userData: Partial<IUser>): Promise<AxiosResponse<IUser>> => {
     return apiClient.put("/users/profile", userData);
   },
-  
-  // Profile image upload
+
   uploadProfileImage: (file: File): Promise<AxiosResponse<any>> => {
     const formData = new FormData();
     formData.append('profileImage', file);
-    
+
     return apiClient.post("/users/upload", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'multipart-form-data',
       },
     });
   },
 };
 
 export const adminApi = {
-  // Admin authentication
   login: (credentials: {
     email: string;
     password: string;
@@ -97,12 +107,16 @@ export const adminApi = {
     return apiClient.post("/admin/login", credentials);
   },
 
-  logout: (): Promise<void> => {
+  logout: async (): Promise<void> => {
     localStorage.removeItem("adminToken");
+
+    const storeAccessModule = await import('./storeAccess');
+    const { dispatchLogout } = storeAccessModule;
+    dispatchLogout('admin');
+
     return Promise.resolve();
   },
 
-  // User management
   getUsers: (
     page: number,
     limit: number,
@@ -125,5 +139,13 @@ export const adminApi = {
 
   unblockUser: (userId: string): Promise<AxiosResponse<IUser>> => {
     return apiClient.patch(`/admin/users/${userId}/unblock`);
+  },
+
+  createUser: (userData: {
+    name: string;
+    email: string;
+    password: string;
+  }): Promise<AxiosResponse<IUser>> => {
+    return apiClient.post("/admin/users", userData);
   },
 };

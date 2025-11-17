@@ -1,31 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Form, Input, Button, Card, Typography, message } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { adminApi } from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
 
 const { Title } = Typography;
 
 const AdminLogin: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  const { loginAdmin, loading, error, clearError } = useAuth();
   const navigate = useNavigate();
 
   const onFinish = async (values: { email: string; password: string }) => {
-    setLoading(true);
+    // Clear any previous errors
+    clearError();
+
     try {
-      const response = await adminApi.login(values);
-
-      // Store token in localStorage
-      const { token } = response.data;
-      localStorage.setItem('adminToken', token);
-
+      await loginAdmin(values.email, values.password);
       message.success('Admin login successful!');
       navigate('/admin/dashboard');
     } catch (error: any) {
       console.error('Admin login error:', error);
-      message.error(error.response?.data?.message || 'Admin login failed');
-    } finally {
-      setLoading(false);
+      message.error(error || 'Admin login failed');
     }
   };
 

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Layout } from 'antd';
 import 'antd/dist/reset.css';
 import './App.css';
+import { useAuth } from './hooks/useAuth';
 
 import HomePage from './pages/HomePage';
 import UserSignup from './pages/user/UserSignup';
@@ -16,6 +17,13 @@ import ProtectedRoute from './components/ProtectedRoute';
 const { Content } = Layout;
 
 function App() {
+  const { setAuthFromStorage } = useAuth();
+
+  useEffect(() => {
+    // Initialize auth state from localStorage when app starts
+    setAuthFromStorage();
+  }, [setAuthFromStorage]);
+
   return (
     <Router>
       <Layout className="layout min-h-screen">

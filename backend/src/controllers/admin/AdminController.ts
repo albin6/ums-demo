@@ -63,4 +63,20 @@ export class AdminController {
       res.status(400).json({ message: error.message });
     }
   }
+
+  async createUser(req: Request, res: Response) {
+    try {
+      // Validate request body
+      const validatedData = z.object({
+        name: z.string().min(2, 'Name must be at least 2 characters'),
+        email: z.string().email('Invalid email address'),
+        password: z.string().min(6, 'Password must be at least 6 characters'),
+      }).parse(req.body);
+
+      const result = await this.adminService.createUser(validatedData);
+      res.status(201).json(result);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  }
 }

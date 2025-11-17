@@ -1,26 +1,34 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Form, Input, Button, Card, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined, MailOutlined } from '@ant-design/icons';
-import { Link } from 'react-router-dom';
-import { userApi } from '../../services/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 const { Title } = Typography;
 
 const UserSignup: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  const { signup, loading, error, clearError } = useAuth();
+  const navigate = useNavigate();
 
-  const onFinish = async (values: { name: string; email: string; password: string }) => {
-    setLoading(true);
+  // Only use error for displaying messages, so we can mark it as used
+  React.useEffect(() => {
+    if (error) {
+      message.error(error);
+    }
+  }, [error]);
+
+  const onFinish = async (values: { name: string; email: string; password: string; confirmPassword: string }) => {
+    // Clear any previous errors
+    clearError();
+
     try {
-      await userApi.signup(values);
+      await signup(values.name, values.email, values.password);
       message.success('Account created successfully!');
       // Redirect to login page
-      window.location.href = '/user/login';
+      navigate('/user/login');
     } catch (error: any) {
       console.error('Signup error:', error);
-      message.error(error.response?.data?.message || 'Signup failed');
-    } finally {
-      setLoading(false);
+      message.error(error || 'Signup failed');
     }
   };
 
@@ -62,6 +70,25 @@ const UserSignup: React.FC = () => {
             rules={[{ required: true, min: 6, message: 'Password must be at least 6 characters!' }]}
           >
             <Input.Password prefix={<LockOutlined />} placeholder="Enter your password" />
+          </Form.Item>
+
+          <Form.Item
+            label="Confirm Password"
+            name="confirmPassword"
+            dependencies={['password']}
+            rules={[
+              { required: true, message: 'Please confirm your password!' },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue('password') === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(new Error('The two passwords do not match!'));
+                },
+              }),
+            ]}
+          >
+            <Input.Password prefix={<LockOutlined />} placeholder="Confirm your password" />
           </Form.Item>
 
           <Form.Item>

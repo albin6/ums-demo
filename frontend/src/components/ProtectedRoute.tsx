@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -7,21 +8,23 @@ interface ProtectedRouteProps {
   redirectTo: string;
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  userType, 
-  redirectTo 
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  userType,
+  redirectTo
 }) => {
-  const isAuthenticated = (): boolean => {
+  const { isAuthenticated, isAdminAuthenticated } = useAuth();
+
+  const checkAuth = (): boolean => {
     if (userType === 'user') {
-      return !!localStorage.getItem('token');
+      return isAuthenticated;
     } else if (userType === 'admin') {
-      return !!localStorage.getItem('adminToken');
+      return isAdminAuthenticated;
     }
     return false;
   };
 
-  if (!isAuthenticated()) {
+  if (!checkAuth()) {
     return <Navigate to={redirectTo} replace />;
   }
 

@@ -1,25 +1,22 @@
 import React from 'react';
 import { Button, Typography, Card, Space } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
-import { userApi } from '../services/api';
-import { adminApi } from '../services/api';
+import { useAuth } from '../hooks/useAuth';
 import { LogoutOutlined } from '@ant-design/icons';
 
 const { Title, Paragraph } = Typography;
 
 const HomePage: React.FC = () => {
+  const { logoutUser, logoutAdmin, isAuthenticated, isAdminAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // Check if user is logged in as either user or admin
-  const isUserLoggedIn = !!localStorage.getItem('token');
-  const isAdminLoggedIn = !!localStorage.getItem('adminToken');
-
-  const handleLogout = async () => {
-    if (isUserLoggedIn) {
-      await userApi.logout();
+  const handleLogout = () => {
+    // Logout both user and admin if they are logged in
+    if (isAuthenticated) {
+      logoutUser();
     }
-    if (isAdminLoggedIn) {
-      await adminApi.logout();
+    if (isAdminAuthenticated) {
+      logoutAdmin();
     }
     // No need for message here as the logout from individual pages provides feedback
     navigate(0); // Refresh the page to update the UI
@@ -33,7 +30,7 @@ const HomePage: React.FC = () => {
             User Management System
           </Title>
 
-          {isUserLoggedIn || isAdminLoggedIn ? (
+          {isAuthenticated || isAdminAuthenticated ? (
             <>
               <Paragraph className="text-gray-600 mb-6">
                 You are currently logged in.
@@ -45,7 +42,7 @@ const HomePage: React.FC = () => {
                   size="large"
                   className="w-full"
                   onClick={() => navigate('/user/profile')}
-                  disabled={!isUserLoggedIn}
+                  disabled={!isAuthenticated}
                 >
                   Go to User Profile
                 </Button>
@@ -55,7 +52,7 @@ const HomePage: React.FC = () => {
                   size="large"
                   className="w-full"
                   onClick={() => navigate('/admin/dashboard')}
-                  disabled={!isAdminLoggedIn}
+                  disabled={!isAdminAuthenticated}
                 >
                   Go to Admin Dashboard
                 </Button>

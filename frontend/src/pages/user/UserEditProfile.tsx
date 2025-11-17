@@ -3,6 +3,7 @@ import { Form, Input, Button, Card, Typography, Avatar, Upload, message, Spin } 
 import { UserOutlined, UploadOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import { userApi } from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
 
 const { Title } = Typography;
 
@@ -18,6 +19,7 @@ const UserEditProfile: React.FC = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const { logoutUser } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -156,8 +158,8 @@ const UserEditProfile: React.FC = () => {
                 type="default"
                 danger
                 icon={<LogoutOutlined />}
-                onClick={async () => {
-                  await userApi.logout();
+                onClick={() => {
+                  logoutUser();
                   message.success('Logged out successfully');
                   navigate('/');
                 }}

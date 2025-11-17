@@ -9,6 +9,17 @@ export interface IUser {
   updatedAt: Date;
 }
 
+// Interface for user data that excludes sensitive information like password
+export interface IUserResponse {
+  _id?: string;
+  name: string;
+  email: string;
+  profileImage?: string;
+  isBlocked: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface IAdmin {
   _id?: string;
   email: string;

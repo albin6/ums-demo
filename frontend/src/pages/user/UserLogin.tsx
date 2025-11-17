@@ -1,31 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Form, Input, Button, Card, Typography, message } from 'antd';
 import { LockOutlined, MailOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
-import { userApi } from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
 
 const { Title } = Typography;
 
 const UserLogin: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  const { login, loading, error, clearError } = useAuth();
   const navigate = useNavigate();
 
   const onFinish = async (values: { email: string; password: string }) => {
-    setLoading(true);
+    // Clear any previous errors
+    clearError();
+
     try {
-      const response = await userApi.login(values);
-
-      // Store token in localStorage
-      const { token } = response.data;
-      localStorage.setItem('token', token);
-
+      await login(values.email, values.password);
       message.success('Login successful!');
       navigate('/user/profile');
     } catch (error: any) {
       console.error('Login error:', error);
-      message.error(error.response?.data?.message || 'Login failed');
-    } finally {
-      setLoading(false);
+      message.error(error || 'Login failed');
     }
   };
 
