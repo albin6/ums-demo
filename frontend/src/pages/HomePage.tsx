@@ -1,25 +1,24 @@
-import React from 'react';
-import { Button, Typography, Card, Space } from 'antd';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { LogoutOutlined } from '@ant-design/icons';
+import React from "react";
+import { Button, Typography, Card, Space } from "antd";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { LogoutOutlined } from "@ant-design/icons";
 
 const { Title, Paragraph } = Typography;
 
 const HomePage: React.FC = () => {
-  const { logoutUser, logoutAdmin, isAuthenticated, isAdminAuthenticated } = useAuth();
+  const { logoutUser, logoutAdmin, isAuthenticated, isAdminAuthenticated } =
+    useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Logout both user and admin if they are logged in
     if (isAuthenticated) {
       logoutUser();
     }
     if (isAdminAuthenticated) {
       logoutAdmin();
     }
-    // No need for message here as the logout from individual pages provides feedback
-    navigate(0); // Refresh the page to update the UI
+    navigate(0);
   };
 
   return (
@@ -41,7 +40,7 @@ const HomePage: React.FC = () => {
                   type="primary"
                   size="large"
                   className="w-full"
-                  onClick={() => navigate('/user/profile')}
+                  onClick={() => navigate("/user/profile")}
                   disabled={!isAuthenticated}
                 >
                   Go to User Profile
@@ -51,7 +50,7 @@ const HomePage: React.FC = () => {
                   type="default"
                   size="large"
                   className="w-full"
-                  onClick={() => navigate('/admin/dashboard')}
+                  onClick={() => navigate("/admin/dashboard")}
                   disabled={!isAdminAuthenticated}
                 >
                   Go to Admin Dashboard
@@ -72,7 +71,8 @@ const HomePage: React.FC = () => {
           ) : (
             <>
               <Paragraph className="text-gray-600 mb-8">
-                Welcome to the User Management System. Please register or login to continue.
+                Welcome to the User Management System. Please register or login
+                to continue.
               </Paragraph>
 
               <div className="space-y-4">

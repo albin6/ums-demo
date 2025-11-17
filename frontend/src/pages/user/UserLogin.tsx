@@ -1,8 +1,8 @@
-import React from 'react';
-import { Form, Input, Button, Card, Typography, message } from 'antd';
-import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import React from "react";
+import { Form, Input, Button, Card, Typography, message } from "antd";
+import { LockOutlined, MailOutlined } from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 const { Title } = Typography;
 
@@ -11,16 +11,15 @@ const UserLogin: React.FC = () => {
   const navigate = useNavigate();
 
   const onFinish = async (values: { email: string; password: string }) => {
-    // Clear any previous errors
     clearError();
 
     try {
       await login(values.email, values.password);
-      message.success('Login successful!');
-      navigate('/user/profile');
+      message.success("Login successful!");
+      navigate("/user/profile");
     } catch (error: any) {
-      console.error('Login error:', error);
-      message.error(error || 'Login failed');
+      console.error("Login error:", error);
+      message.error(error || "Login failed");
     }
   };
 
@@ -43,7 +42,13 @@ const UserLogin: React.FC = () => {
           <Form.Item
             label="Email"
             name="email"
-            rules={[{ required: true, type: 'email', message: 'Please input a valid email!' }]}
+            rules={[
+              {
+                required: true,
+                type: "email",
+                message: "Please input a valid email!",
+              },
+            ]}
           >
             <Input prefix={<MailOutlined />} placeholder="Enter your email" />
           </Form.Item>
@@ -51,13 +56,21 @@ const UserLogin: React.FC = () => {
           <Form.Item
             label="Password"
             name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[{ required: true, message: "Please input your password!" }]}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="Enter your password" />
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder="Enter your password"
+            />
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" className="w-full" loading={loading}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full"
+              loading={loading}
+            >
               Login
             </Button>
           </Form.Item>

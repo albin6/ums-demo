@@ -9,7 +9,6 @@ export interface IUser {
   updatedAt: Date;
 }
 
-// Interface for user data that excludes sensitive information like password
 export interface IUserResponse {
   _id?: string;
   name: string;

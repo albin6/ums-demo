@@ -1,18 +1,18 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Layout } from 'antd';
-import 'antd/dist/reset.css';
-import './App.css';
-import { useAuth } from './hooks/useAuth';
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Layout } from "antd";
+import "antd/dist/reset.css";
+import "./App.css";
+import { useAuth } from "./hooks/useAuth";
 
-import HomePage from './pages/HomePage';
-import UserSignup from './pages/user/UserSignup';
-import UserLogin from './pages/user/UserLogin';
-import UserProfile from './pages/user/UserProfile';
-import UserEditProfile from './pages/user/UserEditProfile';
-import AdminLogin from './pages/admin/AdminLogin';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import ProtectedRoute from './components/ProtectedRoute';
+import HomePage from "./pages/HomePage";
+import UserSignup from "./pages/user/UserSignup";
+import UserLogin from "./pages/user/UserLogin";
+import UserProfile from "./pages/user/UserProfile";
+import UserEditProfile from "./pages/user/UserEditProfile";
+import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const { Content } = Layout;
 
@@ -20,14 +20,13 @@ function App() {
   const { setAuthFromStorage } = useAuth();
 
   useEffect(() => {
-    // Initialize auth state from localStorage when app starts
     setAuthFromStorage();
   }, [setAuthFromStorage]);
 
   return (
     <Router>
       <Layout className="layout min-h-screen">
-        <Content style={{ padding: '0 50px' }}>
+        <Content style={{ padding: "0 50px" }}>
           <div className="bg-white min-h-screen">
             <Routes>
               <Route path="/" element={<HomePage />} />

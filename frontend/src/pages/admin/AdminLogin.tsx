@@ -1,8 +1,8 @@
-import React from 'react';
-import { Form, Input, Button, Card, Typography, message } from 'antd';
-import { LockOutlined, MailOutlined } from '@ant-design/icons';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import React from "react";
+import { Form, Input, Button, Card, Typography, message } from "antd";
+import { LockOutlined, MailOutlined } from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 const { Title } = Typography;
 
@@ -11,16 +11,15 @@ const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
 
   const onFinish = async (values: { email: string; password: string }) => {
-    // Clear any previous errors
     clearError();
 
     try {
       await loginAdmin(values.email, values.password);
-      message.success('Admin login successful!');
-      navigate('/admin/dashboard');
+      message.success("Admin login successful!");
+      navigate("/admin/dashboard");
     } catch (error: any) {
-      console.error('Admin login error:', error);
-      message.error(error || 'Admin login failed');
+      console.error("Admin login error:", error);
+      message.error(error || "Admin login failed");
     }
   };
 
@@ -43,7 +42,13 @@ const AdminLogin: React.FC = () => {
           <Form.Item
             label="Email"
             name="email"
-            rules={[{ required: true, type: 'email', message: 'Please input a valid email!' }]}
+            rules={[
+              {
+                required: true,
+                type: "email",
+                message: "Please input a valid email!",
+              },
+            ]}
           >
             <Input prefix={<MailOutlined />} placeholder="Enter admin email" />
           </Form.Item>
@@ -51,13 +56,21 @@ const AdminLogin: React.FC = () => {
           <Form.Item
             label="Password"
             name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            rules={[{ required: true, message: "Please input your password!" }]}
           >
-            <Input.Password prefix={<LockOutlined />} placeholder="Enter admin password" />
+            <Input.Password
+              prefix={<LockOutlined />}
+              placeholder="Enter admin password"
+            />
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" className="w-full" loading={loading}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="w-full"
+              loading={loading}
+            >
               Login as Admin
             </Button>
           </Form.Item>

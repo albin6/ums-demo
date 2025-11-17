@@ -47,9 +47,8 @@ const UserProfile: React.FC = () => {
                 alt={user.name}
                 className="w-32 h-32 rounded-full object-cover border-4 border-blue-200"
                 onError={(e) => {
-                  // Fallback to initial if image fails to load
                   const target = e.target as HTMLImageElement;
-                  target.onerror = null; // Prevent infinite loop
+                  target.onerror = null;
                   target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="32" fill="gray">${user.name
                     .charAt(0)
                     .toUpperCase()}</text></svg>`;

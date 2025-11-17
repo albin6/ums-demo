@@ -1,10 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, Space, Modal, message, Tag, Spin, Pagination, Form, Input as AntInput } from 'antd';
-import { SearchOutlined, BlockOutlined, CheckCircleOutlined, LogoutOutlined, UserAddOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import { adminApi } from '../../services/api';
-import { useAuth } from '../../hooks/useAuth';
-import type { ColumnsType } from 'antd/es/table';
+import React, { useState, useEffect } from "react";
+import {
+  Table,
+  Input,
+  Button,
+  Space,
+  Modal,
+  message,
+  Tag,
+  Spin,
+  Pagination,
+  Form,
+  Input as AntInput,
+} from "antd";
+import {
+  SearchOutlined,
+  BlockOutlined,
+  CheckCircleOutlined,
+  LogoutOutlined,
+  UserAddOutlined,
+} from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import { adminApi } from "../../services/api";
+import { useAuth } from "../../hooks/useAuth";
+import type { ColumnsType } from "antd/es/table";
 
 interface User {
   _id: string;
@@ -18,12 +36,15 @@ interface User {
 const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
-  const [userToAction, setUserToAction] = useState<{ id: string; action: 'block' | 'unblock' } | null>(null);
+  const [userToAction, setUserToAction] = useState<{
+    id: string;
+    action: "block" | "unblock";
+  } | null>(null);
   const [createUserModalVisible, setCreateUserModalVisible] = useState(false);
   const [createUserForm] = Form.useForm();
   const { logoutAdmin, createUserByAdmin, loading: authLoading } = useAuth();
@@ -33,17 +54,20 @@ const AdminDashboard: React.FC = () => {
     fetchUsers(currentPage, pageSize, searchText);
   }, [currentPage, pageSize, searchText]);
 
-  const handleCreateUser = async (values: { name: string; email: string; password: string }) => {
+  const handleCreateUser = async (values: {
+    name: string;
+    email: string;
+    password: string;
+  }) => {
     try {
       await createUserByAdmin(values.name, values.email, values.password);
-      message.success('User created successfully!');
+      message.success("User created successfully!");
       setCreateUserModalVisible(false);
       createUserForm.resetFields();
-      // Refresh the user list
       fetchUsers(currentPage, pageSize, searchText);
     } catch (error: any) {
-      console.error('Error creating user:', error);
-      message.error(error || 'Failed to create user');
+      console.error("Error creating user:", error);
+      message.error(error || "Failed to create user");
     }
   };
 
@@ -54,8 +78,8 @@ const AdminDashboard: React.FC = () => {
       setUsers(response.data.data);
       setTotalUsers(response.data.total);
     } catch (error: any) {
-      console.error('Error fetching users:', error);
-      message.error(error.response?.data?.message || 'Failed to fetch users');
+      console.error("Error fetching users:", error);
+      message.error(error.response?.data?.message || "Failed to fetch users");
     } finally {
       setLoading(false);
     }
@@ -65,41 +89,42 @@ const AdminDashboard: React.FC = () => {
     if (!userToAction) return;
 
     try {
-      if (userToAction.action === 'block') {
+      if (userToAction.action === "block") {
         await adminApi.blockUser(userToAction.id);
-        message.success('User blocked successfully');
+        message.success("User blocked successfully");
       } else {
         await adminApi.unblockUser(userToAction.id);
-        message.success('User unblocked successfully');
+        message.success("User unblocked successfully");
       }
 
-      // Update the user in the local state
-      setUsers(prevUsers =>
-        prevUsers.map(user =>
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
           user._id === userToAction.id
-            ? { ...user, isBlocked: userToAction.action === 'block' }
+            ? { ...user, isBlocked: userToAction.action === "block" }
             : user
         )
       );
     } catch (error: any) {
-      console.error('Error updating user:', error);
-      message.error(error.response?.data?.message || `Failed to ${userToAction.action} user`);
+      console.error("Error updating user:", error);
+      message.error(
+        error.response?.data?.message || `Failed to ${userToAction.action} user`
+      );
     } finally {
       setConfirmModalVisible(false);
       setUserToAction(null);
     }
   };
 
-  const showBlockModal = (userId: string, action: 'block' | 'unblock') => {
+  const showBlockModal = (userId: string, action: "block" | "unblock") => {
     setUserToAction({ id: userId, action });
     setConfirmModalVisible(true);
   };
 
   const columns: ColumnsType<User> = [
     {
-      title: 'Profile',
-      dataIndex: 'profileImage',
-      key: 'profileImage',
+      title: "Profile",
+      dataIndex: "profileImage",
+      key: "profileImage",
       render: (image, record) => (
         <div className="flex items-center">
           {record.profileImage ? (
@@ -108,10 +133,11 @@ const AdminDashboard: React.FC = () => {
               alt={record.name}
               className="w-10 h-10 rounded-full object-cover border-2 border-gray-300"
               onError={(e) => {
-                // Fallback to initial if image fails to load
                 const target = e.target as HTMLImageElement;
-                target.onerror = null; // Prevent infinite loop
-                target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="14" fill="gray">${record.name.charAt(0).toUpperCase()}</text></svg>`;
+                target.onerror = null;
+                target.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="14" fill="gray">${record.name
+                  .charAt(0)
+                  .toUpperCase()}</text></svg>`;
               }}
             />
           ) : (
@@ -123,20 +149,20 @@ const AdminDashboard: React.FC = () => {
       ),
     },
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
       sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
     },
     {
-      title: 'Status',
-      key: 'isBlocked',
-      dataIndex: 'isBlocked',
+      title: "Status",
+      key: "isBlocked",
+      dataIndex: "isBlocked",
       render: (_, { isBlocked }) => (
         <>
           {isBlocked ? (
@@ -148,14 +174,14 @@ const AdminDashboard: React.FC = () => {
       ),
     },
     {
-      title: 'Created At',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
       render: (date) => new Date(date).toLocaleDateString(),
     },
     {
-      title: 'Actions',
-      key: 'action',
+      title: "Actions",
+      key: "action",
       render: (_, record) => (
         <Space size="middle">
           {record.isBlocked ? (
@@ -163,7 +189,7 @@ const AdminDashboard: React.FC = () => {
               type="primary"
               size="small"
               icon={<CheckCircleOutlined />}
-              onClick={() => showBlockModal(record._id, 'unblock')}
+              onClick={() => showBlockModal(record._id, "unblock")}
             >
               Unblock
             </Button>
@@ -172,7 +198,7 @@ const AdminDashboard: React.FC = () => {
               danger
               size="small"
               icon={<BlockOutlined />}
-              onClick={() => showBlockModal(record._id, 'block')}
+              onClick={() => showBlockModal(record._id, "block")}
             >
               Block
             </Button>
@@ -184,11 +210,11 @@ const AdminDashboard: React.FC = () => {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   const handleClearSearch = () => {
-    setSearchText('');
+    setSearchText("");
     setCurrentPage(1);
   };
 
@@ -200,7 +226,9 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard - User Management</h1>
+        <h1 className="text-2xl font-bold text-gray-800">
+          Admin Dashboard - User Management
+        </h1>
         <Space>
           <Button
             type="primary"
@@ -215,8 +243,8 @@ const AdminDashboard: React.FC = () => {
             icon={<LogoutOutlined />}
             onClick={() => {
               logoutAdmin();
-              message.success('Logged out successfully');
-              navigate('/');
+              message.success("Logged out successfully");
+              navigate("/");
             }}
           >
             Logout
@@ -277,20 +305,24 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       <Modal
-        title={`Confirm ${userToAction?.action === 'block' ? 'Block' : 'Unblock'} User`}
+        title={`Confirm ${
+          userToAction?.action === "block" ? "Block" : "Unblock"
+        } User`}
         open={confirmModalVisible}
         onOk={handleBlockUnblock}
         onCancel={() => setConfirmModalVisible(false)}
-        okText={userToAction?.action === 'block' ? 'Block User' : 'Unblock User'}
-        okButtonProps={{ danger: userToAction?.action === 'block' }}
+        okText={
+          userToAction?.action === "block" ? "Block User" : "Unblock User"
+        }
+        okButtonProps={{ danger: userToAction?.action === "block" }}
       >
         <p>
-          Are you sure you want to {userToAction?.action} this user?
-          This will {userToAction?.action === 'block' ? 'prevent' : 'allow'} them from accessing their account.
+          Are you sure you want to {userToAction?.action} this user? This will{" "}
+          {userToAction?.action === "block" ? "prevent" : "allow"} them from
+          accessing their account.
         </p>
       </Modal>
 
-      {/* Modal for creating new user */}
       <Modal
         title="Create New User"
         open={createUserModalVisible}
@@ -311,7 +343,10 @@ const AdminDashboard: React.FC = () => {
           <Form.Item
             label="Full Name"
             name="name"
-            rules={[{ required: true, message: 'Please input the user name!' }, { min: 2, message: 'Name must be at least 2 characters!' }]}
+            rules={[
+              { required: true, message: "Please input the user name!" },
+              { min: 2, message: "Name must be at least 2 characters!" },
+            ]}
           >
             <AntInput placeholder="Enter user's full name" />
           </Form.Item>
@@ -319,7 +354,13 @@ const AdminDashboard: React.FC = () => {
           <Form.Item
             label="Email"
             name="email"
-            rules={[{ required: true, type: 'email', message: 'Please input a valid email!' }]}
+            rules={[
+              {
+                required: true,
+                type: "email",
+                message: "Please input a valid email!",
+              },
+            ]}
           >
             <AntInput placeholder="Enter user's email" />
           </Form.Item>
@@ -327,7 +368,13 @@ const AdminDashboard: React.FC = () => {
           <Form.Item
             label="Password"
             name="password"
-            rules={[{ required: true, min: 6, message: 'Password must be at least 6 characters!' }]}
+            rules={[
+              {
+                required: true,
+                min: 6,
+                message: "Password must be at least 6 characters!",
+              },
+            ]}
           >
             <AntInput.Password placeholder="Enter password" />
           </Form.Item>
@@ -335,15 +382,17 @@ const AdminDashboard: React.FC = () => {
           <Form.Item
             label="Confirm Password"
             name="confirmPassword"
-            dependencies={['password']}
+            dependencies={["password"]}
             rules={[
-              { required: true, message: 'Please confirm the password!' },
+              { required: true, message: "Please confirm the password!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
-                  if (!value || getFieldValue('password') === value) {
+                  if (!value || getFieldValue("password") === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('The two passwords do not match!'));
+                  return Promise.reject(
+                    new Error("The two passwords do not match!")
+                  );
                 },
               }),
             ]}
@@ -361,11 +410,7 @@ const AdminDashboard: React.FC = () => {
               >
                 Cancel
               </Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={authLoading}
-              >
+              <Button type="primary" htmlType="submit" loading={authLoading}>
                 Create User
               </Button>
             </Space>
